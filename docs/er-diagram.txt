@@ -1,0 +1,76 @@
+# Relational Data Model - ER Diagram (Text-Based)
+
+This diagram outlines the database schema for the property management application.
+
+## Tables
+
+### Agents
+The central entity representing property agents.
+
+- **Table**: `agents`
+- **Columns**:
+  - `id` (UUID, Primary Key): Unique identifier for the agent.
+  - `firstName` (String): Agent's first name.
+  - `lastName` (String): Agent's last name.
+  - `email` (String, Unique): Agent's email address.
+  - `mobileNumber` (String): Agent's mobile phone number.
+  - `createdAt` (Timestamp): Timestamp of when the record was created.
+  - `updatedAt` (Timestamp): Timestamp of when the record was last updated.
+
+### Properties
+Represents the rental properties managed by an agent.
+
+- **Table**: `properties`
+- **Columns**:
+  - `id` (UUID, Primary Key): Unique identifier for the property.
+  - `agent_id` (UUID, Foreign Key -> agents.id): The agent managing this property.
+  - `address` (String): The physical address of the property.
+  - `description` (Text): A description of the property.
+  - `createdAt` (Timestamp): Timestamp of when the record was created.
+  - `updatedAt` (Timestamp): Timestamp of when the record was last updated.
+
+### Tenants
+Represents tenants or families occupying a rental property.
+
+- **Table**: `tenants`
+- **Columns**:
+  - `id` (UUID, Primary Key): Unique identifier for the tenant.
+  - `property_id` (UUID, Foreign Key -> properties.id): The property the tenant is renting.
+  - `name` (String): The name of the tenant or head of the family.
+  - `contact_email` (String): Contact email for the tenant.
+  - `contact_phone` (String): Contact phone number for the tenant.
+  - `lease_start` (Date): The start date of the lease agreement.
+  - `lease_end` (Date): The end date of the lease agreement.
+  - `createdAt` (Timestamp): Timestamp of when the record was created.
+  - `updatedAt` (Timestamp): Timestamp of when the record was last updated.
+
+### Notes
+For notes or reminders, typically for property maintenance.
+
+- **Table**: `notes`
+- **Columns**:
+  - `id` (UUID, Primary Key): Unique identifier for the note.
+  - `property_id` (UUID, Foreign Key -> properties.id): The property the note is associated with.
+  - `title` (String): A short title for the note.
+  - `content` (Text): The full content of the note or reminder.
+  - `is_reminder` (Boolean): Flag to indicate if this note is a reminder.
+  - `reminder_date` (Timestamp, Nullable): The date for the reminder if applicable.
+  - `createdAt` (Timestamp): Timestamp of when the record was created.
+
+## Relationships
+
+- **One-to-Many**: An `Agent` can manage multiple `Properties`.
+  - `agents.id` (1) --- (*) `properties.agent_id`
+
+- **One-to-Many**: A `Property` can have multiple `Tenants`.
+  - `properties.id` (1) --- (*) `tenants.property_id`
+
+- **One-to-Many**: A `Property` can have multiple `Notes`.
+  - `properties.id` (1) --- (*) `notes.property_id`
+
+## Constraints
+
+- **Primary Keys**: `id` column in each table.
+- **Foreign Keys**: `agent_id`, `property_id` establish relationships.
+- **Uniqueness**: `agents.email` must be unique.
+- **Not Null**: Primary keys, foreign keys, and core fields (e.g., `agents.firstName`, `properties.address`) should not be null.
