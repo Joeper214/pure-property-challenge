@@ -21,7 +21,7 @@ export const createAgent = (req: Request, res: Response) => {
   if (!firstName || !lastName || !email || !mobileNumber) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
-  
+
   if (agentStore.findAgentByEmail(email)) {
     return res.status(400).json({ message: 'Email already in use' });
   }
@@ -42,48 +42,44 @@ export const createAgent = (req: Request, res: Response) => {
 };
 
 export const upsertAgent = (req: Request, res: Response) => {
-    const { id, firstName, lastName, email, mobileNumber } = req.body;
+  const { id, firstName, lastName, email, mobileNumber } = req.body;
 
-    if (!firstName || !lastName || !email || !mobileNumber) {
-        return res.status(400).json({ message: 'Missing required fields' });
-    }
+  if (!firstName || !lastName || !email || !mobileNumber) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
 
-    if (id) {
-        const existingAgent = agentStore.getAgentById(id);
-        if (existingAgent) {
-            if (agentStore.findAgentByEmail(email) && agentStore.findAgentByEmail(email)?.id !== id) {
-                return res.status(400).json({ message: 'Email already in use' });
-            }
-            const updatedAgent = agentStore.updateAgent(id, { firstName, lastName, email, mobileNumber });
-            return res.json(updatedAgent);
-        }
-    }
-    
-    if (agentStore.findAgentByEmail(email)) {
+  if (id) {
+    const existingAgent = agentStore.getAgentById(id);
+    if (existingAgent) {
+      if (agentStore.findAgentByEmail(email) && agentStore.findAgentByEmail(email)?.id !== id) {
         return res.status(400).json({ message: 'Email already in use' });
+      }
+      const updatedAgent = agentStore.updateAgent(id, { firstName, lastName, email, mobileNumber });
+      return res.json(updatedAgent);
     }
+  }
 
-    const now = Date.now();
-    const newAgent: Agent = {
-        id: uuidv4(),
-        firstName,
-        lastName,
-        email,
-        mobileNumber,
-        createdAt: now,
-        updatedAt: now,
-    };
+  if (agentStore.findAgentByEmail(email)) {
+    return res.status(400).json({ message: 'Email already in use' });
+  }
 
-    agentStore.addAgent(newAgent);
-    res.status(201).json(newAgent);
+  const now = Date.now();
+  const newAgent: Agent = {
+    id: uuidv4(),
+    firstName,
+    lastName,
+    email,
+    mobileNumber,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  agentStore.addAgent(newAgent);
+  res.status(201).json(newAgent);
 };
 
 export const updateAgent = (req: Request, res: Response) => {
   const { firstName, lastName, email, mobileNumber } = req.body;
-  
-  if (!firstName || !lastName || !email || !mobileNumber) {
-    return res.status(400).json({ message: 'Missing required fields' });
-  }
 
   const existingAgent = agentStore.getAgentById(req.params.id);
   if (!existingAgent) {
